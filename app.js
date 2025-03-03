@@ -14,11 +14,25 @@ const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
 const usersFilePath = path.join(__dirname, "users.json");
+const postsFilePath = path.join(__dirname, "posts.json");
 
+// Initialize files if they don't exist
 if (!fs.existsSync(usersFilePath)) {
     fs.writeFileSync(usersFilePath, "[]", "utf8");
 }
 
+if (!fs.existsSync(postsFilePath)) {
+    fs.writeFileSync(postsFilePath, JSON.stringify({ posts: [] }, null, 2), "utf8");
+}
+
+function readPosts() {
+    const data = fs.readFileSync(postsFilePath, "utf8");
+    return JSON.parse(data).posts;
+}
+
+function writePosts(posts) {
+    fs.writeFileSync(postsFilePath, JSON.stringify({ posts }, null, 2), "utf8");
+}
 app.post("/register", (req, res) => {
     const userData = req.body;
 
@@ -33,7 +47,6 @@ app.post("/register", (req, res) => {
     }
 
     users.push(userData);
-
     fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 
     res.json({ success: true, message: "Registration successful!" });
@@ -42,12 +55,8 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
-    let users = [];
-    if (fs.existsSync(usersFilePath)) {
-        users = JSON.parse(fs.readFileSync(usersFilePath, "utf8"));
-    }
-
-    const user = users.find(user => user.username === username);
+    const users = JSON.parse(fs.readFileSync(usersFilePath, "utf8"));
+    const user = users.find(user => user.username === username || user.email === username);
 
     if (!user) {
         return res.status(400).json({ success: false, message: "User not found." });
@@ -60,6 +69,84 @@ app.post("/login", (req, res) => {
     res.json({ success: true, message: "Login successful!", user });
 });
 
+app.get("/posts", (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+    const posts = readPosts();
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const paginatedPosts = posts.slice(startIndex, endIndex);
+    res.json({ posts: paginatedPosts });
+});
+
+app.post("/posts/:id/like", (req, res) => {
+    const postId = parseInt(req.params.id);
+    const posts = readPosts();
+
+    const post = posts.find(post => post.id === postId);
+    if (!post) {
+        return res.status(404).json({ success: false, message: "Post not found." });
+    }
+
+    post.likes += 1;
+    writePosts(posts);
+
+    res.json({ success: true, message: "Post liked!", likes: post.likes });
+});
+
+app.post("/posts/:id/save", (req, res) => {
+    const postId = parseInt(req.params.id);
+    const { userId } = req.body;
+
+    const posts = readPosts();
+    const post = posts.find(post => post.id === postId);
+    if (!post) {
+        return res.status(404).json({ success: false, message: "Post not found." });
+    }
+
+    if (!post.savedBy) {
+        post.savedBy = [];
+    }
+
+    if (!post.savedBy.includes(userId)) {
+        post.savedBy.push(userId);
+        writePosts(posts);
+        res.json({ success: true, message: "Post saved!" });
+    } else {
+        res.json({ success: false, message: "Post already saved." });
+    }
+});
+
+
+app.post("/users/:username/follow", (req, res) => {
+    const { username } = req.params;
+    const { followerId } = req.body;
+
+    const users = JSON.parse(fs.readFileSync(usersFilePath, "utf8"));
+    const user = users.find(user => user.username === username);
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    if (!user.followers) {
+        user.followers = [];
+    }
+
+    if (!user.followers.includes(followerId)) {
+        user.followers.push(followerId);
+        fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+        res.json({ success: true, message: "Followed user!" });
+    } else {
+        res.json({ success: false, message: "Already following this user." });
+    }
+});
+
+app.get("/dashboard", (req, res) => {
+    res.sendFile(path.join(publicPath, "dashboard.html"));
+});
+
+// Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
