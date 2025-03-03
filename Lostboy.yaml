@@ -1,7 +1,11 @@
 services:
   - type: web
     name: voltura
-    env: node
-    plan: free
+    runtime: node
     buildCommand: npm install
     startCommand: node app.js
+    env: node
+    envVars:
+      - key: NODE_ENV
+        value: production
+    plan: free
