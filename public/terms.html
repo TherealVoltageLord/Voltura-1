@@ -1,1 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltura - Terms & Conditions</title>
+    <style>
+        /* Reset & General Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e3f2fd, #e0f7fa);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1976d2;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .terms-box {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            border: 2px solid #90caf9;
+            border-radius: 10px;
+            background: #f5f5f5;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .terms-section {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-left: 5px solid #64b5f6;
+            background: #e3f2fd;
+            border-radius: 10px;
+        }
+
+        .terms-section h2 {
+            color: #0288d1;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .terms-section p, .terms-section ul {
+            color: #555;
+            font-size: 14px;
+            margin: 0;
+            padding-left: 10px;
+        }
+
+        ul {
+            list-style: square inside;
+        }
+
+        .accept-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .accept-btn:hover {
+            background: linear-gradient(90deg, #388e3c, #43a047);
+            transform: translateY(-2px);
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, #121212, #424242);
+            color: #e0e0e0;
+        }
+
+        .dark-mode .container {
+            background: #1e1e1e;
+            color: #e0e0e0;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-mode .terms-box {
+            background: #2b2b2b;
+            border-color: #555;
+        }
+
+        .dark-mode .terms-section {
+            background: #333;
+            border-left: 5px solid #00cc66;
+        }
+
+        .toggle-dark {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #0288d1;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .toggle-dark:hover {
+            background: #0277bd;
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Dark Mode Toggle -->
+<button class="toggle-dark" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+
+<div class="container">
+    <h1>Voltura Terms & Conditions</h1>
+    
+    <div class="terms-box">
+        <div class="terms-section">
+            <h2>1. Acceptance of Terms</h2>
+            <p>By creating an account, you agree to follow these terms.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>2. User Eligibility</h2>
+            <p>Users must be **16 years or older** to register. If under 16, account creation will be denied.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>3. Account Security</h2>
+            <p>Keep your login details private. **5 failed login attempts** will result in a **10-minute lockout**.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>4. User Content</h2>
+            <p>Only **images** can be uploaded. No violence, explicit content, or hate speech.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>5. Privacy Policy</h2>
+            <p>Data is stored in a **JSON file**. Posts are public for other users to see.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>6. Community Guidelines</h2>
+            <p>No harassment, hate speech, or spam. Users can **report** inappropriate content.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>7. Future Features</h2>
+            <ul>
+                <li>✅ Chat System (DMs & Groups)</li>
+                <li>✅ AI Chatbot (Lisa AI)</li>
+                <li>✅ Channel Features</li>
+            </ul>
+        </div>
+
+        <div class="terms-section">
+            <h2>8. Account Suspension</h2>
+            <p>Violating these terms may result in **account suspension or ban**.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>9. Liability</h2>
+            <p>Voltura is **not responsible** for user content or activity.</p>
+        </div>
+
+        <div class="terms-section">
+            <h2>10. Updates to Terms</h2>
+            <p>These terms may change in the future. Users will be notified of major updates.</p>
+        </div>
+    </div>
+
+    <button class="accept-btn" onclick="acceptTerms()">I Accept</button>
+</div>
+
+<script>
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+    }
+
+    function acceptTerms() {
+        alert("You have accepted the Terms & Conditions.");
+        window.location.href = "reg.html"; 
+    }
+</script>
+
+</body>
+</html>
+
 
