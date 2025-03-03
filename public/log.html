@@ -1,1 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to Voltura and access your account to enjoy exclusive features.">
+    <meta name="keywords" content="Voltura, Login, Sign In, Account, Profile">
+    <meta name="author" content="Voltura Team">
+    <meta property="og:title" content="Voltura - Login">
+    <meta property="og:description" content="Login to Voltura and access your account to enjoy exclusive features.">
+    <meta property="og:image" content="https://files.catbox.moe/fcmeit.jpeg">
+    <meta property="og:url" content="https://voltura.onrender.com/login">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Voltura - Login">
+    <meta name="twitter:description" content="Login to Voltura and access your account to enjoy exclusive features.">
+    <meta name="twitter:image" content="https://files.catbox.moe/fcmeit.jpeg">
+    <title>Voltura - Login</title>
 
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #0077b6;
+            --bg-color: #f0f9ff;
+            --text-color: #005f73;
+            --input-bg: #e0f7fa;
+            --box-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode {
+            --primary-color: #00aaff;
+            --bg-color: #1b1b1b;
+            --text-color: #e0e0e0;
+            --input-bg: #333;
+            --box-shadow: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .login-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px var(--box-shadow);
+            width: 350px;
+            text-align: center;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .dark-mode .login-box {
+            background: #222;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .login-box h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .input-group i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .input-group input {
+            width: 100%;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .forgot-password {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 10px;
+            text-align: right;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #005f73;
+        }
+
+        .register-link {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            color: var(--primary-color);
+            font-size: 24px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .loading-text {
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            display: inline-block;
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <i class="fas fa-moon dark-mode-toggle" onclick="toggleDarkMode()"></i>
+
+    <div class="login-box">
+        <img src="https://files.catbox.moe/fcmeit.jpeg" alt="Voltura Logo" class="logo">
+        <h2>Login to Voltura</h2>
+
+        <p id="error-msg" class="error-message"></p>
+
+        <div class="input-group">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="username-email" placeholder="Username or Email" required>
+        </div>
+
+        <div class="input-group">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password')"></i>
+        </div>
+
+        <a href="#" class="forgot-password">Forgot Password?</a>
+
+        <button class="btn" onclick="login()">Login</button>
+
+        <p class="register-link">Don't have an account? <a href="reg.html">Sign up here</a></p>
+    </div>
+
+    <div class="loading-screen" id="loading-screen">
+        <span class="loading-text" id="loading-text">Voltura</span>
+        <p class="loading-message">Logging you in...</p>
+    </div>
+
+    <script>
+        let failedAttempts = 0;
+        let isBlocked = false;
+
+        function togglePassword(fieldId) {
+            let field = document.getElementById(fieldId);
+            let eyeIcon = field.nextElementSibling;
+            field.type = field.type === "password" ? "text" : "password";
+            eyeIcon.classList.toggle("fa-eye-slash");
+        }
+
+        function login() {
+            if (isBlocked) {
+                document.getElementById("error-msg").innerText = `Too many failed attempts. Try again later.`;
+                return;
+            }
+
+            const usernameEmail = document.getElementById("username-email").value;
+            const password = document.getElementById("password").value;
+
+            if (usernameEmail.trim() === "" || password.trim() === "") {
+                document.getElementById("error-msg").innerText = "Please enter your credentials.";
+                return;
+            }
+
+            document.getElementById("loading-screen").classList.add("show");
+
+            fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: usernameEmail,
+                    password: password,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("loading-screen").classList.remove("show");
+
+                if (data.success) {
+                    window.location.href = "dashboard.html";
+                } else {
+                    failedAttempts++;
+                    document.getElementById("error-msg").innerText = data.message;
+
+                    if (failedAttempts >= 5) {
+                        isBlocked = true;
+                        setTimeout(() => {
+                            isBlocked = false;
+                            failedAttempts = 0;
+                            document.getElementById("error-msg").innerText = "";
+                        }, 600000); // 10 minutes
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("loading-screen").classList.remove("show");
+                document.getElementById("error-msg").innerText = "An error occurred. Please try again.";
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+    </script>
+
+</body>
+</html>
