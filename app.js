@@ -1,59 +1,65 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const bodyParser = require('body-parser');
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
 app.use(bodyParser.json());
+app.use(cors());
 
-const usersFile = 'users.json';
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
 
-function readUsers() {
-    if (!fs.existsSync(usersFile)) fs.writeFileSync(usersFile, '[]');
-    return JSON.parse(fs.readFileSync(usersFile));
+const usersFilePath = path.join(__dirname, "users.json");
+
+if (!fs.existsSync(usersFilePath)) {
+    fs.writeFileSync(usersFilePath, "[]", "utf8");
 }
 
-function writeUsers(data) {
-    fs.writeFileSync(usersFile, JSON.stringify(data, null, 2));
-}
+app.post("/register", (req, res) => {
+    const userData = req.body;
 
-app.post('/register', (req, res) => {
-    let users = readUsers();
-    const { username, email, password, dob, gender, profilePic } = req.body;
-
-    if (users.some(user => user.email === email || user.username === username)) {
-        return res.status(400).json({ message: "User already exists" });
+    let users = [];
+    if (fs.existsSync(usersFilePath)) {
+        users = JSON.parse(fs.readFileSync(usersFilePath, "utf8"));
     }
 
-    const birthYear = new Date(dob).getFullYear();
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - birthYear;
-
-    if (age < 16) {
-        return res.status(403).json({ message: "You must be at least 16 years old to register." });
+    const userExists = users.some(user => user.username === userData.username);
+    if (userExists) {
+        return res.status(400).json({ success: false, message: "Username already exists." });
     }
-    const newUser = { username, email, password, dob, gender, profilePic };
-    users.push(newUser);
-    writeUsers(users);
 
-    res.status(201).json({ message: "Registration successful" });
+    users.push(userData);
+
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+
+    res.json({ success: true, message: "Registration successful!" });
 });
 
-app.post('/login', (req, res) => {
-    let users = readUsers();
-    const { email, password } = req.body;
+app.post("/login", (req, res) => {
+    const { username, password } = req.body;
 
-    const user = users.find(user => user.email === email && user.password === password);
-    if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
+    let users = [];
+    if (fs.existsSync(usersFilePath)) {
+        users = JSON.parse(fs.readFileSync(usersFilePath, "utf8"));
     }
 
-    res.status(200).json({ message: "Login successful", user });
+    const user = users.find(user => user.username === username);
+
+    if (!user) {
+        return res.status(400).json({ success: false, message: "User not found." });
+    }
+
+    if (user.password !== password) {
+        return res.status(400).json({ success: false, message: "Incorrect password." });
+    }
+
+    res.json({ success: true, message: "Login successful!", user });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
