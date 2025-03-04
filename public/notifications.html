@@ -3,13 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voltura Notification Bar</title>
+    <meta name="description" content="Stay updated with real-time notifications on Voltura.">
+    <meta name="keywords" content="Voltura, Notifications, Real-time, Updates">
+    <meta name="author" content="Voltura Team">
+    <meta property="og:title" content="Voltura - Notifications">
+    <meta property="og:description" content="Stay updated with real-time notifications on Voltura.">
+    <meta property="og:image" content="https://files.catbox.moe/fcmeit.jpeg">
+    <meta property="og:url" content="https://yourwebsite.com/notification">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Voltura - Notifications">
+    <meta name="twitter:description" content="Stay updated with real-time notifications on Voltura.">
+    <meta name="twitter:image" content="https://files.catbox.moe/fcmeit.jpeg">
+    <title>Voltura - Notifications</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #00aaff;
+            --secondary-color: #77dd77; 
+            --bg-color: #f0f8ff; 
+            --text-color: #333333; 
+            --notification-bg: #ffffff; 
+            --notification-hover-bg: #f0f8ff; 
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,7 +42,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1a1a2e;
+            background-color: var(--primary-color);
             color: #ffffff;
             padding: 10px 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -35,23 +58,10 @@
             font-weight: bold;
         }
 
-        .menu {
-            display: flex;
-        }
-
-        .menu-item {
-            margin-left: 20px;
-            cursor: pointer;
-        }
-
-        .menu-item:hover {
-            color: #00aaff;
-        }
-
         .notifications {
             display: block;
-            background-color: #ffffff;
-            color: #000000;
+            background-color: var(--notification-bg);
+            color: var(--text-color);
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
@@ -61,7 +71,7 @@
             overflow-y: auto;
             margin: 20px auto;
             font-size: 24px;
-            animation: slideIn 0.5s ease-out; /* Slide in animation */
+            animation: slideIn 0.5s ease-out;
         }
 
         @keyframes slideIn {
@@ -83,62 +93,101 @@
             font-weight: bold;
             margin-bottom: 10px;
             font-size: 28px;
-            color: #1a1a2e; /* Group title color */
+            color: var(--primary-color);
         }
 
         .notification-item {
+            display: flex;
+            align-items: center;
             padding: 15px;
             border-bottom: 1px solid #dddddd;
             font-size: 24px;
-            background-color: #e6f7ff; /* Notification item background color */
+            background-color: var(--notification-bg);
             border-radius: 5px;
             margin-bottom: 10px;
-            transition: background-color 0.3s ease; /* Hover effect transition */
+            transition: background-color 0.3s ease;
         }
 
         .notification-item:hover {
-            background-color: #cceeff;
+            background-color: var(--notification-hover-bg);
         }
 
         .notification-item:last-child {
             border-bottom: none;
         }
+
+        .notification-icon {
+            margin-right: 10px;
+            color: var(--secondary-color);
+            font-size: 20px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-timestamp {
+            font-size: 16px;
+            color: #777777;
+        }
     </style>
 </head>
 <body>
     <div class="notification-bar">
-        <div class="icon">🔔</div>
+        <div class="icon"><i class="fas fa-bell"></i></div>
         <div class="title">Notifications</div>
     </div>
     <div class="notifications" id="notifications">
-        <!-- Notifications will be dynamically added here -->
+        ;
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const notifications = document.getElementById('notifications');
+        const userId = 1; 
+        const notificationsContainer = document.getElementById("notifications");
 
-            const notificationData = {
-                "Likes": [
-                    "User1 liked your post.",
-                    "User2 liked your post."
-                ],
-                "Comments": [
-                    "User3 commented on your post.",
-                    "User4 commented on your post."
-                ],
-                "Mentions": [
-                    "User5 mentioned you in a comment."
-                ]
-            };
+        function fetchNotifications() {
+            fetch(`/notifications/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.notifications.length === 0) {
+                        notificationsContainer.innerHTML = "<p>No notifications.</p>";
+                    } else {
+                        const groupedNotifications = data.notifications.reduce((acc, notification) => {
+                            const type = notification.type === "like" ? "Likes" : "Follows";
+                            if (!acc[type]) {
+                                acc[type] = [];
+                            }
+                            acc[type].push(notification);
+                            return acc;
+                        }, {});
 
-            notifications.innerHTML = '';
-            for (const group in notificationData) {
-                const groupTitle = `<div class="notification-group-title">${group}</div>`;
-                const groupItems = notificationData[group].map(item => `<div class="notification-item">${item}</div>`).join('');
-                const groupHTML = `<div class="notification-group">${groupTitle}${groupItems}</div>`;
-                notifications.innerHTML += groupHTML;
-            }
-        });
+                        notificationsContainer.innerHTML = Object.entries(groupedNotifications)
+                            .map(([group, items]) => `
+                                <div class="notification-group">
+                                    <div class="notification-group-title">${group}</div>
+                                    ${items.map(item => `
+                                        <div class="notification-item">
+                                            <div class="notification-icon">
+                                                ${item.type === "like" ? '<i class="fas fa-heart"></i>' : '<i class="fas fa-user-plus"></i>'}
+                                            </div>
+                                            <div class="notification-content">
+                                                ${item.type === "like" ? "Someone liked your post." : "Someone followed you."}
+                                                <div class="notification-timestamp">${new Date(item.timestamp).toLocaleString()}</div>
+                                            </div>
+                                        </div>
+                                    `).join("")}
+                                </div>
+                            `)
+                            .join("");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching notifications:", error);
+                    notificationsContainer.innerHTML = "<p>Failed to load notifications.</p>";
+                });
+        }
+
+        fetchNotifications();
+        setInterval(fetchNotifications, 5000);
     </script>
 </body>
 </html>
