@@ -3,7 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title id="meta-title">Profile</title>
+
+    <meta name="description" content="View user profile on Voltura.">
+    <meta name="keywords" content="Voltura, social media, user profile, posts">
+    <meta name="author" content="Voltura">
+
+    <meta property="og:title" content="Voltura Profile">
+    <meta property="og:description" content="View user profile on Voltura.">
+    <meta property="og:image" content="default-profile.jpg">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="profile">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Voltura Profile">
+    <meta name="twitter:description" content="View user profile on Voltura.">
+    <meta name="twitter:image" content="default-profile.jpg">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -81,12 +97,15 @@
             color: var(--text-dark);
             font-size: 24px;
         }
+
+        .active-link {
+            color: #FF5733 !important;
+        }
     </style>
 </head>
 <body>
-    <!-- Profile Header -->
     <div class="profile-header">
-        <img src="default-profile.jpg" alt="Profile Picture" class="profile-pic">
+        <img src="default-profile.jpg" alt="Profile Picture" class="profile-pic" onerror="this.src='default-profile.jpg'">
         <h1 id="profile-username">Username</h1>
         <p id="profile-bio">Bio goes here...</p>
         <div class="profile-stats">
@@ -96,20 +115,13 @@
         </div>
     </div>
 
-    <!-- Posts Grid -->
-    <div class="posts-grid" id="posts-grid">
-        
-    </div>
+    <div class="posts-grid" id="posts-grid"></div>
 
-    <!-- Saved Posts -->
     <div class="saved-posts">
         <h2><i class="fas fa-bookmark"></i> Saved Posts</h2>
-        <div class="posts-grid" id="saved-posts-grid">
-        
-        </div>
+        <div class="posts-grid" id="saved-posts-grid">Loading saved posts...</div>
     </div>
 
-    
     <nav class="navbar">
         <a href="dashboard.html"><i class="fas fa-home"></i></a>
         <a href="upload.html"><i class="fas fa-plus-square"></i></a>
@@ -129,86 +141,76 @@
         let currentUser = null;
         let profileUser = null;
 
-      
         async function fetchProfile(username) {
-            const response = await fetch(`/users/${username}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch profile data.");
-            }
+            const response = await fetch(`/users/${username}`, {
+                headers: { "Authorization": `Bearer ${currentUser.token}` }
+            });
+            if (!response.ok) throw new Error("Failed to fetch profile data.");
             return await response.json();
         }
 
-    
         async function fetchUserPosts(username) {
             const response = await fetch(`/posts?username=${username}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch user posts.");
-            }
-            const data = await response.json();
-            return data.posts;
+            if (!response.ok) throw new Error("Failed to fetch user posts.");
+            return (await response.json()).posts;
         }
 
-      
         async function fetchSavedPosts(userId) {
             const response = await fetch(`/users/${userId}/saved`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch saved posts.");
-            }
-            const data = await response.json();
-            return data.savedPosts;
+            if (!response.ok) throw new Error("Failed to fetch saved posts.");
+            return (await response.json()).savedPosts;
         }
 
-    
         function renderPosts(posts, container) {
             container.innerHTML = posts.map(post => `
-                <img src="${post.image}" alt="Post" class="post-thumbnail">
+                <img src="${post.image}" alt="Post" class="post-thumbnail" loading="lazy" onerror="this.src='fallback-image.jpg'">
             `).join("");
         }
 
-      
+        function showError(message) {
+            document.body.innerHTML = `<div style="text-align: center; padding: 20px;">⚠️ ${message}</div>`;
+        }
+
         async function loadProfile() {
             const urlParams = new URLSearchParams(window.location.search);
             const username = urlParams.get("username");
-
-            if (!username) {
-                alert("Username not specified.");
-                return;
-            }
+            if (!username) return showError("Username not specified.");
 
             try {
-              
                 profileUser = await fetchProfile(username);
                 profileUsername.textContent = profileUser.username;
                 profileBio.textContent = profileUser.bio || "No bio yet.";
-                followerCount.textContent = `<i class="fas fa-users"></i> ${profileUser.followers.length} Followers`;
-                followingCount.textContent = `<i class="fas fa-user-friends"></i> ${profileUser.following?.length || 0} Following`;
+                document.querySelector(".profile-pic").src = profileUser.profilePic || "default-profile.jpg";
 
+                document.title = `${profileUser.username} | Voltura`;
 
                 const posts = await fetchUserPosts(username);
-                postCount.textContent = `<i class="fas fa-image"></i> ${posts.length} Posts`;
+                postCount.innerHTML = `<i class="fas fa-image"></i> ${posts.length} Posts`;
                 renderPosts(posts, postsGrid);
 
-                
                 if (currentUser && currentUser.username === username) {
+                    savedPostsGrid.innerHTML = "<p>Loading saved posts...</p>";
                     const savedPosts = await fetchSavedPosts(currentUser.id);
                     renderPosts(savedPosts, savedPostsGrid);
                 }
             } catch (error) {
-                console.error(error);
-                alert("Failed to load profile data.");
+                showError("Failed to load profile data.");
             }
         }
 
-      
+        function highlightActiveNav() {
+            document.querySelectorAll(".navbar a").forEach(link => {
+                if (link.href.includes(window.location.pathname)) {
+                    link.classList.add("active-link");
+                }
+            });
+        }
+
         async function init() {
             currentUser = JSON.parse(localStorage.getItem("currentUser"));
-            if (!currentUser) {
-                alert("Please log in.");
-                window.location.href = "log.html";
-                return;
-            }
-
+            if (!currentUser) return showError("Please log in.");
             await loadProfile();
+            highlightActiveNav();
         }
 
         init();
