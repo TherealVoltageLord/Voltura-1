@@ -98,18 +98,18 @@
 
     <!-- Posts Grid -->
     <div class="posts-grid" id="posts-grid">
-        <!-- Post thumbnails will be dynamically loaded here -->
+        
     </div>
 
     <!-- Saved Posts -->
     <div class="saved-posts">
         <h2><i class="fas fa-bookmark"></i> Saved Posts</h2>
         <div class="posts-grid" id="saved-posts-grid">
-            <!-- Saved post thumbnails will be dynamically loaded here -->
+        
         </div>
     </div>
 
-    <!-- Bottom Navbar -->
+    
     <nav class="navbar">
         <a href="dashboard.html"><i class="fas fa-home"></i></a>
         <a href="upload.html"><i class="fas fa-plus-square"></i></a>
@@ -201,11 +201,10 @@
 
       
         async function init() {
-            // Fetch current user (e.g., from localStorage or session)
             currentUser = JSON.parse(localStorage.getItem("currentUser"));
             if (!currentUser) {
                 alert("Please log in.");
-                window.location.href = "login.html";
+                window.location.href = "log.html";
                 return;
             }
 
