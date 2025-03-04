@@ -70,6 +70,13 @@ app.post("/register", (req, res) => {
         followers: [],
         following: [],
         savedPosts: [],
+        notifications: [
+            {
+                type: "welcome",
+                message: "Welcome to Voltura! 🎉 Do well to set up your profile and start exploring.",
+                timestamp: new Date().toISOString(),
+            },
+        ],
     };
     users.push(newUser);
     writeUsers(users);
@@ -101,12 +108,24 @@ app.get("/posts", (req, res) => {
 
 app.post("/posts/:id/like", (req, res) => {
     const postId = parseInt(req.params.id);
+    const { userId } = req.body;
     const posts = readPosts();
     const post = posts.find(post => post.id === postId);
     if (!post) {
         return res.status(404).json({ success: false, message: "Post not found." });
     }
     post.likes += 1;
+    const users = readUsers();
+    const postOwner = users.find(user => user.username === post.username);
+    if (postOwner) {
+        postOwner.notifications.push({
+            type: "like",
+            fromUserId: userId,
+            postId: postId,
+            timestamp: new Date().toISOString(),
+        });
+        writeUsers(users);
+    }
     writePosts(posts);
     res.json({ success: true, message: "Post liked!", likes: post.likes });
 });
@@ -131,19 +150,6 @@ app.post("/posts/:id/save", (req, res) => {
     }
 });
 
-app.post("/posts/:id/comment", (req, res) => {
-    const postId = parseInt(req.params.id);
-    const { userId, comment } = req.body;
-    const posts = readPosts();
-    const post = posts.find(post => post.id === postId);
-    if (!post) {
-        return res.status(404).json({ success: false, message: "Post not found." });
-    }
-    post.comments.push({ userId, comment, timestamp: new Date().toISOString() });
-    writePosts(posts);
-    res.json({ success: true, message: "Comment added!", comments: post.comments });
-});
-
 app.post("/users/:username/follow", (req, res) => {
     const { username } = req.params;
     const { followerId } = req.body;
@@ -162,6 +168,11 @@ app.post("/users/:username/follow", (req, res) => {
     if (!userToFollow.followers.includes(followerId)) {
         userToFollow.followers.push(followerId);
         follower.following.push(userToFollow.id);
+        userToFollow.notifications.push({
+            type: "follow",
+            fromUserId: followerId,
+            timestamp: new Date().toISOString(),
+        });
         writeUsers(users);
         res.json({ success: true, message: "Followed user!" });
     } else {
@@ -208,6 +219,16 @@ app.post("/upload", upload.single("image"), (req, res) => {
     res.json({ success: true, message: "Post uploaded successfully!", post: newPost });
 });
 
+app.get("/notifications/:userId", (req, res) => {
+    const { userId } = req.params;
+    const users = readUsers();
+    const user = users.find(user => user.id === parseInt(userId));
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found." });
+    }
+    res.json({ notifications: user.notifications || [] });
+});
+
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(publicPath, "dashboard.html"));
 });
@@ -220,6 +241,11 @@ app.get("/upload", (req, res) => {
     res.sendFile(path.join(publicPath, "upload.html"));
 });
 
+app.get("/notification", (req, res) => {
+    res.sendFile(path.join(publicPath, "notification.html"));
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+*Update the server*
