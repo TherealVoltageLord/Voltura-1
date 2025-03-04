@@ -131,6 +131,19 @@ app.post("/posts/:id/save", (req, res) => {
     }
 });
 
+app.post("/posts/:id/comment", (req, res) => {
+    const postId = parseInt(req.params.id);
+    const { userId, comment } = req.body;
+    const posts = readPosts();
+    const post = posts.find(post => post.id === postId);
+    if (!post) {
+        return res.status(404).json({ success: false, message: "Post not found." });
+    }
+    post.comments.push({ userId, comment, timestamp: new Date().toISOString() });
+    writePosts(posts);
+    res.json({ success: true, message: "Comment added!", comments: post.comments });
+});
+
 app.post("/users/:username/follow", (req, res) => {
     const { username } = req.params;
     const { followerId } = req.body;
