@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --light-blue: #a0d2eb;
+            --light-green: #a8e6cf;
+            --text-dark: #2c3e50;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: white;
+            color: var(--text-dark);
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .profile-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--light-blue);
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--light-green);
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .profile-stats span {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .post-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .saved-posts {
+            padding: 20px;
+        }
+
+        .saved-posts h2 {
+            margin-bottom: 10px;
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid var(--light-blue);
+        }
+
+        .navbar a {
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <img src="default-profile.jpg" alt="Profile Picture" class="profile-pic">
+        <h1 id="profile-username">Username</h1>
+        <p id="profile-bio">Bio goes here...</p>
+        <div class="profile-stats">
+            <span id="post-count"><i class="fas fa-image"></i> 0 Posts</span>
+            <span id="follower-count"><i class="fas fa-users"></i> 0 Followers</span>
+            <span id="following-count"><i class="fas fa-user-friends"></i> 0 Following</span>
+        </div>
+    </div>
+
+    <!-- Posts Grid -->
+    <div class="posts-grid" id="posts-grid">
+        
+    </div>
+
+    <!-- Saved Posts -->
+    <div class="saved-posts">
+        <h2><i class="fas fa-bookmark"></i> Saved Posts</h2>
+        <div class="posts-grid" id="saved-posts-grid">
+        
+        </div>
+    </div>
+
+    
+    <nav class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i></a>
+        <a href="upload.html"><i class="fas fa-plus-square"></i></a>
+        <a href="notifications.html"><i class="fas fa-bell"></i></a>
+        <a href="profile.html"><i class="fas fa-user"></i></a>
+    </nav>
+
+    <script>
+        const profileUsername = document.getElementById("profile-username");
+        const profileBio = document.getElementById("profile-bio");
+        const postCount = document.getElementById("post-count");
+        const followerCount = document.getElementById("follower-count");
+        const followingCount = document.getElementById("following-count");
+        const postsGrid = document.getElementById("posts-grid");
+        const savedPostsGrid = document.getElementById("saved-posts-grid");
+
+        let currentUser = null;
+        let profileUser = null;
+
+      
+        async function fetchProfile(username) {
+            const response = await fetch(`/users/${username}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch profile data.");
+            }
+            return await response.json();
+        }
+
+    
+        async function fetchUserPosts(username) {
+            const response = await fetch(`/posts?username=${username}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch user posts.");
+            }
+            const data = await response.json();
+            return data.posts;
+        }
+
+      
+        async function fetchSavedPosts(userId) {
+            const response = await fetch(`/users/${userId}/saved`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch saved posts.");
+            }
+            const data = await response.json();
+            return data.savedPosts;
+        }
+
+    
+        function renderPosts(posts, container) {
+            container.innerHTML = posts.map(post => `
+                <img src="${post.image}" alt="Post" class="post-thumbnail">
+            `).join("");
+        }
+
+      
+        async function loadProfile() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get("username");
+
+            if (!username) {
+                alert("Username not specified.");
+                return;
+            }
+
+            try {
+              
+                profileUser = await fetchProfile(username);
+                profileUsername.textContent = profileUser.username;
+                profileBio.textContent = profileUser.bio || "No bio yet.";
+                followerCount.textContent = `<i class="fas fa-users"></i> ${profileUser.followers.length} Followers`;
+                followingCount.textContent = `<i class="fas fa-user-friends"></i> ${profileUser.following?.length || 0} Following`;
+
+
+                const posts = await fetchUserPosts(username);
+                postCount.textContent = `<i class="fas fa-image"></i> ${posts.length} Posts`;
+                renderPosts(posts, postsGrid);
+
+                
+                if (currentUser && currentUser.username === username) {
+                    const savedPosts = await fetchSavedPosts(currentUser.id);
+                    renderPosts(savedPosts, savedPostsGrid);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Failed to load profile data.");
+            }
+        }
+
+      
+        async function init() {
+            currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser) {
+                alert("Please log in.");
+                window.location.href = "log.html";
+                return;
+            }
+
+            await loadProfile();
+        }
+
+        init();
+    </script>
+</body>
+</html>

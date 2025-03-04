@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Upload your favorite moments to Voltura and share them with the world!">
+    <meta name="keywords" content="Voltura, Upload, Post, Share, Moments">
+    <meta name="author" content="Voltura Team">
+    <meta property="og:title" content="Voltura - Upload Post">
+    <meta property="og:description" content="Upload your favorite moments to Voltura and share them with the world!">
+    <meta property="og:image" content="https://files.catbox.moe/fcmeit.jpeg">
+    <meta property="og:url" content="https://voltura.onrender.com/upload">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Voltura - Upload Post">
+    <meta name="twitter:description" content="Upload your favorite moments to Voltura and share them with the world!">
+    <meta name="twitter:image" content="https://files.catbox.moe/fcmeit.jpeg">
+    <title>Voltura - Upload Post</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --light-blue: #a0d2eb;
+            --light-green: #a8e6cf;
+            --text-dark: #2c3e50;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: white;
+            color: var(--text-dark);
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .upload-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .upload-preview {
+            width: 100%;
+            height: 400px;
+            background-color: #f0f0f0;
+            border: 2px dashed var(--light-blue);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .upload-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .upload-preview .placeholder {
+            font-size: 18px;
+            color: var(--text-dark);
+        }
+
+        .upload-preview input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .caption-input {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid var(--light-blue);
+            border-radius: 5px;
+            font-size: 16px;
+            resize: vertical;
+        }
+
+        .upload-btn {
+            background: var(--light-green);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            background: var(--light-blue);
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid var(--light-blue);
+        }
+
+        .navbar a {
+            color: var(--text-dark);
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Upload Container -->
+    <div class="upload-container">
+        <h1><i class="fas fa-upload"></i> Upload Post</h1>
+        <div class="upload-preview" id="upload-preview">
+            <div class="placeholder">Click or drag to upload an image</div>
+            <input type="file" id="file-input" accept="image/*">
+            <img id="preview-image" src="#" alt="Preview" style="display: none;">
+        </div>
+        <textarea class="caption-input" id="caption-input" placeholder="Add a caption..."></textarea>
+        <button class="upload-btn" id="upload-btn" disabled>Upload</button>
+    </div>
+
+    <!-- Bottom Navbar -->
+    <nav class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i></a>
+        <a href="upload.html"><i class="fas fa-plus-square"></i></a>
+        <a href="notifications.html"><i class="fas fa-bell"></i></a>
+        <a href="profile.html"><i class="fas fa-user"></i></a>
+    </nav>
+
+    <script>
+        const fileInput = document.getElementById("file-input");
+        const previewImage = document.getElementById("preview-image");
+        const uploadPreview = document.getElementById("upload-preview");
+        const captionInput = document.getElementById("caption-input");
+        const uploadBtn = document.getElementById("upload-btn");
+        const placeholder = uploadPreview.querySelector(".placeholder");
+
+        // Get the logged-in user's data
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (!currentUser) {
+            alert("Please log in to upload a post.");
+            window.location.href = "login.html"; // Redirect to login if not logged in
+        }
+
+        fileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImage.src = event.target.result;
+                    previewImage.style.display = "block";
+                    placeholder.style.display = "none";
+                    uploadBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        uploadPreview.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadPreview.style.borderColor = var(--light-green);
+        });
+
+        uploadPreview.addEventListener("dragleave", () => {
+            uploadPreview.style.borderColor = var(--light-blue);
+        });
+
+        uploadPreview.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadPreview.style.borderColor = var(--light-blue);
+
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith("image/")) {
+                fileInput.files = e.dataTransfer.files;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImage.src = event.target.result;
+                    previewImage.style.display = "block";
+                    placeholder.style.display = "none";
+                    uploadBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        uploadBtn.addEventListener("click", async () => {
+            const file = fileInput.files[0];
+            const caption = captionInput.value.trim();
+
+            if (!file) {
+                alert("Please select an image to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("image", file);
+            formData.append("caption", caption);
+            formData.append("username", currentUser.username); // Use the logged-in user's username
+
+            try {
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to upload post.");
+                }
+
+                const data = await response.json();
+                alert("Post uploaded successfully!");
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                console.error(error);
+                alert("Failed to upload post.");
+            }
+        });
+    </script>
+</body>
+</html>

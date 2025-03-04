@@ -15,10 +15,7 @@
     <meta name="twitter:description" content="Login to Voltura and access your account to enjoy exclusive features.">
     <meta name="twitter:image" content="https://files.catbox.moe/fcmeit.jpeg">
     <title>Voltura - Login</title>
-
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <style>
         :root {
             --primary-color: #0077b6;
@@ -277,6 +274,7 @@
                 document.getElementById("loading-screen").classList.remove("show");
 
                 if (data.success) {
+                    localStorage.setItem("currentUser", JSON.stringify(data.user));
                     window.location.href = "dashboard.html";
                 } else {
                     failedAttempts++;
@@ -288,7 +286,7 @@
                             isBlocked = false;
                             failedAttempts = 0;
                             document.getElementById("error-msg").innerText = "";
-                        }, 600000); // 10 minutes
+                        }, 600000);
                     }
                 }
             })
