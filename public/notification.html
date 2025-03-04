@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltura Notification Bar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .notification-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 24px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .menu {
+            display: flex;
+        }
+
+        .menu-item {
+            margin-left: 20px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            color: #00aaff;
+        }
+
+        .notifications {
+            display: block;
+            background-color: #ffffff;
+            color: #000000;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            top: 50px;
+            width: calc(80% - 40px);
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            margin: 20px auto;
+            font-size: 24px;
+            animation: slideIn 0.5s ease-out; /* Slide in animation */
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-group {
+            margin-bottom: 30px;
+        }
+
+        .notification-group-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 28px;
+            color: #1a1a2e; /* Group title color */
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #dddddd;
+            font-size: 24px;
+            background-color: #e6f7ff; /* Notification item background color */
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease; /* Hover effect transition */
+        }
+
+        .notification-item:hover {
+            background-color: #cceeff;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-bar">
+        <div class="icon">🔔</div>
+        <div class="title">Notifications</div>
+    </div>
+    <div class="notifications" id="notifications">
+        <!-- Notifications will be dynamically added here -->
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const notifications = document.getElementById('notifications');
+
+            const notificationData = {
+                "Likes": [
+                    "User1 liked your post.",
+                    "User2 liked your post."
+                ],
+                "Comments": [
+                    "User3 commented on your post.",
+                    "User4 commented on your post."
+                ],
+                "Mentions": [
+                    "User5 mentioned you in a comment."
+                ]
+            };
+
+            notifications.innerHTML = '';
+            for (const group in notificationData) {
+                const groupTitle = `<div class="notification-group-title">${group}</div>`;
+                const groupItems = notificationData[group].map(item => `<div class="notification-item">${item}</div>`).join('');
+                const groupHTML = `<div class="notification-group">${groupTitle}${groupItems}</div>`;
+                notifications.innerHTML += groupHTML;
+            }
+        });
+    </script>
+</body>
+</html>
