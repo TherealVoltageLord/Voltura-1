@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Voltura - Share your favorite moments with the world!">
-    <meta property="og:title" content="Voltura Dashboard">
-    <meta property="og:description" content="Share your favorite moments with the world!">
-    <meta property="og:image" content="https://files.catbox.moe/fcmeit.jpeg">
-    <meta property="og:url" content="https://voltura.onrender.com/dashboard.html">
-    <title>Voltura</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Voltura - Upload Post</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+style>
         :root {
-            --light-blue: #a0d2eb;
-            --light-green: #a8e6cf;
+            --light-blue: lightblue;
+            --light-green: lightgreen;
             --text-dark: #2c3e50;
             --shadow: rgba(0, 0, 0, 0.1);
         }
@@ -23,69 +19,90 @@
             color: var(--text-dark);
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-        }
-
-        
-        .post {
-            margin: 15px auto;
-            max-width: 600px;
-            border: 1px solid var(--light-blue);
-            border-radius: 10px;
-        }
-
-        .post-header {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 10px;
+            justify-content: center;
+            height: 100vh;
         }
 
-        .post-header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .post-username {
-            font-weight: bold;
-            color: var(--text-dark);
-            text-decoration: none;
-        }
-
-        .post-image {
+        .upload-container {
             width: 100%;
-            height: auto;
+            max-width: 600px;
+            padding: 20px;
+            text-align: center;
         }
 
-        .post-actions {
-            padding: 10px;
+        .upload-preview {
+            width: 100%;
+            height: 400px;
+            background-color: #f0f0f0;
+            border: 2px dashed var(--light-blue);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
         }
 
-        .post-actions button {
-            background: none;
-            border: none;
-            font-size: 24px;
-            margin-right: 15px;
+        .upload-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .upload-preview .placeholder {
+            font-size: 18px;
             color: var(--text-dark);
+        }
+
+        .upload-preview input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
             cursor: pointer;
         }
 
-        .post-actions .liked {
-            color: #ff3040 !important;
+        .caption-input {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid var(--light-blue);
+            border-radius: 5px;
+            font-size: 16px;
+            resize: vertical;
         }
 
-        .post-time {
-            font-size: 12px;
-            color: #7f8c8d;
-            padding: 0 10px;
+        .upload-btn {
+            background: var(--light-green);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
         }
 
-        
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            background: var(--light-blue);
+        }
+
         .navbar {
             position: fixed;
             bottom: 0;
             width: 100%;
-            background: white;
+            background: lightblue;
             display: flex;
             justify-content: space-around;
             padding: 15px 0;
@@ -96,159 +113,111 @@
             color: var(--text-dark);
             font-size: 24px;
         }
-
-        
-        .follow-btn {
-            margin-left: auto;
-            background: var(--light-green);
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .follow-btn.following {
-            background: var(--light-blue);
-        }
-
-    
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .loading-spinner i {
-            font-size: 24px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
-    <!-- Posts Feed -->
-    <div id="feed"></div>
-
-
-    <div id="loading-spinner" class="loading-spinner" style="display: none;">
-        <i class="fas fa-spinner"></i>
+    <div class="upload-container">
+        <h1>Upload Your Post</h1>
+        <div class="upload-preview" id="upload-preview">
+            <div class="placeholder">Click or drag an image here</div>
+            <img id="preview-image" style="display: none;" alt="Preview">
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+        <textarea class="caption-input" id="caption-input" rows="3" placeholder="Write a caption..."></textarea>
+        <button class="upload-btn" id="upload-btn" disabled>Upload</button>
     </div>
 
-    
-    <nav class="navbar">
-        <a href="dashboard.html"><i class="fas fa-home"></i></a>
-        <a href="upload.html"><i class="fas fa-plus-square"></i></a>
-        <a href="notifications.html"><i class="fas fa-bell"></i></a>
-        <a href="profile.html"><i class="fas fa-user"></i></a>
-    </nav>
-
     <script>
-        let currentPage = 1;
-        let isLoading = false;
+        const fileInput = document.getElementById("file-input");
+const previewImage = document.getElementById("preview-image");
+const uploadPreview = document.getElementById("upload-preview");
+const captionInput = document.getElementById("caption-input");
+const uploadBtn = document.getElementById("upload-btn");
+const placeholder = uploadPreview.querySelector(".placeholder");
 
-        
-        async function fetchPosts(page = 1) {
-            const response = await fetch(`/posts?page=${page}`);
-            const data = await response.json();
-            return data.posts;
-        }
+// Check user login
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if (!currentUser) {
+  alert("Please log in to upload a post.");
+  window.location.href = "log.html"; // Redirect to login page if user is not logged in
+}
 
+// Handle file input change
+fileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      previewImage.src = event.target.result; // Display preview
+      previewImage.style.display = "block";
+      placeholder.style.display = "none";
+      uploadBtn.disabled = false; // Enable upload button
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Drag-and-drop functionality
+uploadPreview.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadPreview.style.borderColor = "var(--light-green)";
+});
+
+uploadPreview.addEventListener("dragleave", () => {
+  uploadPreview.style.borderColor = "var(--light-blue)";
+});
+
+uploadPreview.addEventListener("drop", (e) => {
+  e.preventDefault();
+  uploadPreview.style.borderColor = "var(--light-blue)";
+  
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith("image/")) {
+    fileInput.files = e.dataTransfer.files; // Set input files for form submission
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      previewImage.src = event.target.result; // Display preview
+      previewImage.style.display = "block";
+      placeholder.style.display = "none";
+      uploadBtn.disabled = false; // Enable upload button
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Upload button functionality
+uploadBtn.addEventListener("click", async () => {
+  const file = fileInput.files[0];
+  const caption = captionInput.value.trim();
+  
+  if (!file) {
+    alert("Please select an image to upload.");
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append("image", file); // Attach image file
+  formData.append("caption", caption); // Attach caption
+  formData.append("username", currentUser.username); // Attach username of logged-in user
+  
+  try {
+    const response = await fetch("/upload", {
+      method: "POST",
+      body: formData,
+    });
     
-        function renderPost(post) {
-            const postElement = document.createElement('div');
-            postElement.className = 'post';
-            postElement.innerHTML = `
-                <div class="post-header">
-                    <img src="${post.profilePic}" alt="Profile">
-                    <a href="profile.html?user=${post.username}" class="post-username">${post.username}</a>
-                    <button class="follow-btn" onclick="followUser('${post.username}', this)">Follow</button>
-                </div>
-                <img src="${post.image}" class="post-image" alt="Post">
-                <div class="post-actions">
-                    <button onclick="likePost(${post.id}, this)"><i class="far fa-heart"></i></button>
-                    <button onclick="commentPost(${post.id})"><i class="far fa-comment"></i></button>
-                    <button onclick="savePost(${post.id})"><i class="far fa-bookmark"></i></button>
-                </div>
-                <div class="post-time">${formatTime(post.timestamp)}</div>
-            `;
-            return postElement;
-        }
-
-        
-        function formatTime(isoTime) {
-            const date = new Date(isoTime);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }
-
-        // Like Post
-        async function likePost(postId, button) {
-            const icon = button.querySelector('i');
-            icon.classList.toggle('far');
-            icon.classList.toggle('fas');
-            icon.classList.toggle('liked');
-
-            await fetch(`/posts/${postId}/like`, { method: "POST" });
-        }
-
-        // Follow User
-        async function followUser(username, button) {
-            button.textContent = button.textContent === 'Follow' ? 'Following' : 'Follow';
-            button.classList.toggle('following');
-
-            await fetch(`/users/${username}/follow`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ followerId: currentUser.id }),
-            });
-        }
-
-        // Save Post
-        async function savePost(postId) {
-            await fetch(`/posts/${postId}/save`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: currentUser.id }),
-            });
-            alert(`Post ${postId} saved!`);
-        }
-
-        
-        async function loadMorePosts() {
-            if (isLoading) return;
-            isLoading = true;
-
-            const spinner = document.getElementById('loading-spinner');
-            spinner.style.display = 'flex';
-
-            const posts = await fetchPosts(currentPage);
-            if (posts.length > 0) {
-                const feed = document.getElementById('feed');
-                posts.forEach(post => feed.appendChild(renderPost(post)));
-                currentPage++;
-            }
-
-            spinner.style.display = 'none';
-            isLoading = false;
-        }
-
-        
-        async function loadFeed() {
-            await loadMorePosts();
-        }
-
-        
-        window.addEventListener('scroll', () => {
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-                loadMorePosts();
-            }
-        });
-
-        
-        loadFeed();
+    if (!response.ok) {
+      throw new Error("Failed to upload post.");
+    }
+    
+    const data = await response.json();
+    alert("Post uploaded successfully!");
+    window.location.href = "dashboard.html"; // Redirect to dashboard after successful upload
+  } catch (error) {
+    console.error(error);
+    alert("Failed to upload post.");
+  }
+})
     </script>
 </body>
 </html>
