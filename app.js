@@ -67,4 +67,4 @@ app.use("/api/admin", adminRoutes);
 app.use((req, res) => res.status(404).json({ success: false, message: "Not Found" }));
 app.use((err, req, res, next) => res.status(500).json({ success: false, message: "Server Error" }));
 
-server.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
